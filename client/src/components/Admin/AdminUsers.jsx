@@ -12,7 +12,7 @@ const AdminUsers = () => {
   const fetchUsers = async () => {
     try {
       const res = await axios.get(
-        "import.meta.env.VITE_API_URL/api/admin/users",
+        `${import.meta.env.VITE_API_URL}/api/admin/users`,
         {
           headers: { adminid: adminId },
         },
@@ -37,7 +37,7 @@ const AdminUsers = () => {
     ) {
       try {
         await axios.delete(
-          `import.meta.env.VITE_API_URL/api/admin/users/${targetId}`,
+          `${import.meta.env.VITE_API_URL}/api/admin/users/${targetId}`,
           {
             headers: { adminid: adminId },
           },

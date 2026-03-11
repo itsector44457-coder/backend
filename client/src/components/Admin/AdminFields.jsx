@@ -13,7 +13,7 @@ const AdminFields = () => {
   const fetchFields = async () => {
     try {
       const res = await axios.get(
-        "import.meta.env.VITE_API_URL/api/admin/fields",
+        `${import.meta.env.VITE_API_URL}/api/admin/fields`,
       );
       setFields(res.data);
     } catch (err) {
@@ -33,7 +33,7 @@ const AdminFields = () => {
     setLoading(true);
     try {
       await axios.post(
-        "import.meta.env.VITE_API_URL/api/admin/fields",
+        `${import.meta.env.VITE_API_URL}/api/admin/fields`,
         { field: fieldName }, // Backend 'field' expect kar raha hai tumhare schema ke hisaab se
         { headers: { adminid: adminId } },
       );
@@ -53,7 +53,7 @@ const AdminFields = () => {
     ) {
       try {
         await axios.delete(
-          `import.meta.env.VITE_API_URL/api/admin/fields/${id}`,
+          `${import.meta.env.VITE_API_URL}/api/admin/fields/${id}`,
           {
             headers: { adminid: adminId },
           },

@@ -53,7 +53,7 @@ const Tasks = ({ onStreakUpdate }) => {
       setLoading(true);
       try {
         const res = await axios.get(
-          `import.meta.env.VITE_API_URL/api/tasks/history/${myId}/${selectedDate}`,
+          `${import.meta.env.VITE_API_URL}/api/tasks/history/${myId}/${selectedDate}`,
           {
             params: { tzOffset: new Date().getTimezoneOffset() },
           },
@@ -73,7 +73,7 @@ const Tasks = ({ onStreakUpdate }) => {
     if (!newTask.title.trim() || !myId || isHistoryView) return;
     try {
       const res = await axios.post(
-        "import.meta.env.VITE_API_URL/api/tasks/add",
+        `${import.meta.env.VITE_API_URL}/api/tasks/add`,
         {
           ...newTask,
           userId: myId,
@@ -96,7 +96,7 @@ const Tasks = ({ onStreakUpdate }) => {
     try {
       const nextCompleted = !status;
       const res = await axios.put(
-        `import.meta.env.VITE_API_URL/api/tasks/${id}`,
+        `${import.meta.env.VITE_API_URL}/api/tasks/${id}`,
         {
           isCompleted: nextCompleted,
           completedAt: nextCompleted ? new Date().toISOString() : null,
@@ -117,7 +117,7 @@ const Tasks = ({ onStreakUpdate }) => {
   const deleteTask = async (id) => {
     if (isHistoryView) return;
     try {
-      await axios.delete(`import.meta.env.VITE_API_URL/api/tasks/${id}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/tasks/${id}`);
       setTasks((prev) => prev.filter((t) => t._id !== id));
     } catch (err) {
       console.error("Task delete error:", err);

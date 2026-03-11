@@ -20,7 +20,7 @@ const StudyLog = ({ refreshKey = 0, fullPage = false }) => {
       try {
         setLoading(true);
         const res = await axios.get(
-          `import.meta.env.VITE_API_URL/api/sessions/${myId}`,
+          `${import.meta.env.VITE_API_URL}/api/sessions/${myId}`,
         );
         setLogs(res.data || {});
       } catch (err) {

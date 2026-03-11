@@ -11,9 +11,7 @@ import QuickCaptureModal from "../Dashboard/QuickCaptureModal";
 import StudyTimer from "./StudyTimer";
 import BattleRequestModal from "../Battle/BattleRequestModal";
 
-const socket = io(
-  import.meta.env.VITE_API_URL || "import.meta.env.VITE_API_URL",
-);
+const socket = io(`${import.meta.env.VITE_API_URL}`);
 
 const Dashboard = ({ theme, onSetTheme, themeOptions, onLogout }) => {
   const navigate = useNavigate();
@@ -110,7 +108,7 @@ const Dashboard = ({ theme, onSetTheme, themeOptions, onLogout }) => {
   const fetchActiveBattle = async () => {
     try {
       const res = await axios.get(
-        `import.meta.env.VITE_API_URL/api/battles/active/${myId}`,
+        `${import.meta.env.VITE_API_URL}/api/battles/active/${myId}`,
       );
 
       setActiveBattle(res.data);
@@ -229,7 +227,7 @@ const Dashboard = ({ theme, onSetTheme, themeOptions, onLogout }) => {
                 battle={activeBattle}
                 onBattleLose={(data) =>
                   axios.put(
-                    `import.meta.env.VITE_API_URL/api/battles/${data.battleId}/lose`,
+                    `${import.meta.env.VITE_API_URL}/api/battles/${data.battleId}/lose`,
                     data,
                   )
                 }

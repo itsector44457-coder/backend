@@ -19,7 +19,7 @@ const BattleHistory = () => {
     const fetchHistory = async () => {
       try {
         const res = await axios.get(
-          `import.meta.env.VITE_API_URL/api/users/combat-history/${userId}`,
+          `${import.meta.env.VITE_API_URL}/api/users/combat-history/${userId}`,
         );
         setHistory(res.data);
       } catch (err) {

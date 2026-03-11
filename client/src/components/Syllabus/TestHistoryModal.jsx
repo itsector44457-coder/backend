@@ -11,7 +11,7 @@ import {
   CalendarDays,
 } from "lucide-react";
 
-const API_MOCK_HISTORY = "import.meta.env.VITE_API_URL/api/mock/history";
+const API_MOCK_HISTORY = `${import.meta.env.VITE_API_URL}/api/mock/history`;
 
 const TestHistoryModal = ({ isOpen, onClose, topic, userId }) => {
   const [history, setHistory] = useState([]);

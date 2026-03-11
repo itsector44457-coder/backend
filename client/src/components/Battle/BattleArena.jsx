@@ -43,7 +43,7 @@ const BattleArena = () => {
     const fetchExams = async () => {
       try {
         const res = await axios.get(
-          `import.meta.env.VITE_API_URL/api/user/exams?field=${userField}`,
+          `${import.meta.env.VITE_API_URL}/api/user/exams?field=${userField}`,
         );
         setExams(res.data);
       } catch (err) {
@@ -195,15 +195,18 @@ const BattleArena = () => {
     });
 
     try {
-      await axios.post("import.meta.env.VITE_API_URL/api/users/combat-result", {
-        userId: user.id || user._id,
-        examId: currentExam._id,
-        examTitle: currentExam.title,
-        score: finalScore,
-        totalQuestions: currentExam.questions.length,
-        percentage: finalPercentage,
-        isCheated: isCheatSubmit,
-      });
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/users/combat-result`,
+        {
+          userId: user.id || user._id,
+          examId: currentExam._id,
+          examTitle: currentExam.title,
+          score: finalScore,
+          totalQuestions: currentExam.questions.length,
+          percentage: finalPercentage,
+          isCheated: isCheatSubmit,
+        },
+      );
     } catch (err) {
       console.error("Failed to save combat history", err);
     }
@@ -211,7 +214,7 @@ const BattleArena = () => {
     if (isCheatSubmit) {
       try {
         await axios.post(
-          "import.meta.env.VITE_API_URL/api/users/mark-cheater",
+          `${import.meta.env.VITE_API_URL}/api/users/mark-cheater`,
           {
             email: user.email,
           },

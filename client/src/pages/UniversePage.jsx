@@ -52,7 +52,9 @@ const UniversePage = ({ myField }) => {
     const fetchUniverseData = async () => {
       try {
         setLoading(true);
-        const res = await axios.get("import.meta.env.VITE_API_URL/api/posts");
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/posts`,
+        );
         const allPosts = res.data || [];
         setTotalPosts(allPosts.length);
         setCommunityData(buildUniverseData(allPosts));

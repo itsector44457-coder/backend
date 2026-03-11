@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Mail, Lock, User, BookOpen, ArrowRight, Loader2 } from "lucide-react";
 
-const API_FIELDS = "import.meta.env.VITE_API_URL/api/fields";
+const API_FIELDS = `${import.meta.env.VITE_API_URL}/api/fields`;
 const DEFAULT_FIELDS = ["Coding", "Data Science", "MPPSC", "Maths"];
 
 const Auth = ({ onLoginSuccess, theme = "light" }) => {
@@ -64,7 +64,7 @@ const Auth = ({ onLoginSuccess, theme = "light" }) => {
       if (isLogin) {
         // LOGIN LOGIC
         const res = await axios.post(
-          "import.meta.env.VITE_API_URL/api/auth/login",
+          `${import.meta.env.VITE_API_URL}/api/auth/login`,
           {
             email: formData.email,
             password: formData.password,
@@ -85,7 +85,7 @@ const Auth = ({ onLoginSuccess, theme = "light" }) => {
       } else {
         // REGISTER LOGIC
         const res = await axios.post(
-          "import.meta.env.VITE_API_URL/api/auth/register",
+          `${import.meta.env.VITE_API_URL}/api/auth/register`,
           formData,
         );
         alert(res.data.message); // "Account mast ban gaya!"

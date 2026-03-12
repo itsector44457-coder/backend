@@ -6,6 +6,7 @@ import {
   NotebookPen,
   Settings,
   Trophy,
+  CheckCircle2, // Naya icon add kiya
 } from "lucide-react";
 
 const Topbar = ({
@@ -18,6 +19,9 @@ const Topbar = ({
   resourceDeckEnabled,
   toggleResourceDeck,
   setSettingsOpen,
+  // 👇 2 Naye Props Check-in ke liye
+  hasCheckedInToday = true,
+  onCheckIn,
 }) => {
   const formatHours = (sec) => {
     if (!sec || isNaN(sec)) return "0.0h";
@@ -46,7 +50,7 @@ const Topbar = ({
           </div>
         </div>
 
-        {/* Mobile Quick Actions (Visible only on small screens) */}
+        {/* Mobile Quick Actions */}
         <div className="flex xl:hidden items-center gap-1.5 shrink-0">
           <button
             onClick={() => setQuickCaptureOpen(true)}
@@ -65,6 +69,7 @@ const Topbar = ({
 
       {/* 2. Live Stats Engine & Scrollable Mobile Area */}
       <div className="flex items-center gap-2 sm:gap-3 w-full xl:w-auto overflow-x-auto no-scrollbar pb-1 xl:pb-0">
+        {/* Deep Focus */}
         <div className="flex-1 xl:flex-none min-w-[76px] sm:min-w-[90px] px-2 py-1.5 sm:px-4 sm:py-2 bg-slate-50 rounded-xl sm:rounded-[1.2rem] border border-slate-100 flex flex-col items-center justify-center shrink-0">
           <span className="text-[7px] sm:text-[8px] font-black text-slate-400 uppercase tracking-widest text-center">
             Deep Focus
@@ -74,6 +79,7 @@ const Topbar = ({
           </span>
         </div>
 
+        {/* Rank XP */}
         <div className="flex-1 xl:flex-none min-w-[76px] sm:min-w-[90px] px-2 py-1.5 sm:px-4 sm:py-2 bg-indigo-50 rounded-xl sm:rounded-[1.2rem] border border-indigo-100 flex flex-col items-center justify-center shrink-0">
           <span className="text-[7px] sm:text-[8px] font-black text-indigo-400 uppercase tracking-widest flex items-center gap-1 text-center">
             <Trophy size={10} className="hidden sm:block" /> Rank XP
@@ -84,17 +90,50 @@ const Topbar = ({
           </span>
         </div>
 
-        <div className="flex-1 xl:flex-none min-w-[76px] sm:min-w-[90px] px-2 py-1.5 sm:px-4 sm:py-2 bg-orange-50 rounded-xl sm:rounded-[1.2rem] border border-orange-100 flex flex-col items-center justify-center shrink-0">
-          <span className="text-[7px] sm:text-[8px] font-black text-orange-400 uppercase tracking-widest flex items-center gap-1 text-center">
-            <Flame size={10} fill="currentColor" className="hidden sm:block" />{" "}
-            Mastery
+        {/* 🔥 STREAK & DAILY CHECK-IN BUTTON (Magic Here) */}
+        <div
+          onClick={() => !hasCheckedInToday && onCheckIn && onCheckIn()}
+          className={`flex-1 xl:flex-none min-w-[76px] sm:min-w-[100px] px-2 py-1.5 sm:px-4 sm:py-2 rounded-xl sm:rounded-[1.2rem] border flex flex-col items-center justify-center shrink-0 transition-all duration-300
+            ${
+              hasCheckedInToday
+                ? "bg-orange-50 border-orange-100 cursor-default" // Normal State (Checked-in)
+                : "bg-gradient-to-br from-orange-100 to-amber-50 border-orange-400 shadow-[0_0_15px_rgba(249,115,22,0.4)] cursor-pointer hover:scale-105 active:scale-95 animate-pulse" // Action State (Pending)
+            }
+          `}
+        >
+          <span
+            className={`text-[7px] sm:text-[8px] font-black uppercase tracking-widest flex items-center gap-1 text-center transition-colors
+            ${hasCheckedInToday ? "text-orange-400" : "text-orange-600"}
+          `}
+          >
+            {hasCheckedInToday ? (
+              <Flame
+                size={10}
+                fill="currentColor"
+                className="hidden sm:block text-orange-400"
+              />
+            ) : (
+              <Zap
+                size={10}
+                fill="currentColor"
+                className="hidden sm:block text-orange-500 animate-bounce"
+              />
+            )}
+            {hasCheckedInToday ? "Mastery" : "Claim Streak!"}
           </span>
-          <span className="text-xs sm:text-sm font-bold text-orange-600 mt-0.5">
+          <span
+            className={`text-xs sm:text-sm font-bold mt-0.5 flex items-center gap-1
+            ${hasCheckedInToday ? "text-orange-600" : "text-orange-700"}
+          `}
+          >
             {streakCount} D
+            {hasCheckedInToday && (
+              <CheckCircle2 size={12} className="text-emerald-500" />
+            )}
           </span>
         </div>
 
-        {/* Mobile Resource Toggle (Visible in scroll area on small screens) */}
+        {/* Mobile Resource Toggle */}
         <button
           onClick={toggleResourceDeck}
           className={`xl:hidden shrink-0 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl border text-[8px] sm:text-[10px] font-black uppercase tracking-widest transition-all h-full ${

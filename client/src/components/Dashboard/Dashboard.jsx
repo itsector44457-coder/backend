@@ -25,6 +25,23 @@ const Dashboard = ({ theme, onSetTheme, themeOptions, onLogout }) => {
   const myField = localStorage.getItem("userField") || userData?.field || "";
 
   /* ============================
+        STREAK & CHECK-IN STATE
+  ============================ */
+  // 1. Initialise State
+  const [hasCheckedInToday, setHasCheckedInToday] = useState(false);
+  const [streakCount, setStreakCount] = useState(userData?.streakCount || 0);
+
+  // 2. Simple logic to check if checked in today (Using localStorage for instant feel)
+  useEffect(() => {
+    const lastCheckIn = localStorage.getItem(`lastCheckIn_${myId}`);
+    const today = new Date().toDateString();
+
+    if (lastCheckIn === today) {
+      setHasCheckedInToday(true);
+    }
+  }, [myId]);
+
+  /* ============================
         TIMER STATES
   ============================ */
 
@@ -145,6 +162,31 @@ const Dashboard = ({ theme, onSetTheme, themeOptions, onLogout }) => {
         HANDLERS
   ============================ */
 
+  // 🔥 3. The Check-in Handler
+  const handleDailyCheckIn = async () => {
+    try {
+      // API call to update streak in backend (optional, if you have this route)
+      // await axios.post(`https://backend-6hhv.onrender.com/api/users/${myId}/checkin`);
+
+      const newStreak = streakCount + 1;
+
+      // Update UI state
+      setHasCheckedInToday(true);
+      setStreakCount(newStreak);
+
+      // Save to localStorage
+      const today = new Date().toDateString();
+      localStorage.setItem(`lastCheckIn_${myId}`, today);
+
+      // Update user data in local storage
+      const updatedUser = { ...userData, streakCount: newStreak };
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      setUserData(updatedUser);
+    } catch (error) {
+      console.error("Check-in failed", error);
+    }
+  };
+
   const handleSessionSaved = (duration) => {
     setTodayDeepSeconds((prev) => prev + duration);
 
@@ -191,7 +233,6 @@ const Dashboard = ({ theme, onSetTheme, themeOptions, onLogout }) => {
   ============================ */
 
   return (
-    // 🔥 THE FIX: Changed h-screen to h-[100dvh] and added w-full to prevent layout breaks on mobile browsers
     <div className="flex h-[100dvh] w-full bg-slate-100 overflow-hidden relative">
       {/* SIDEBAR */}
       <Sidebar setZenMode={setZenMode} onLogout={onLogout} />
@@ -203,7 +244,7 @@ const Dashboard = ({ theme, onSetTheme, themeOptions, onLogout }) => {
           currentUserName={userData.name || "Commander"}
           myField={myField}
           todayDeepSeconds={todayDeepSeconds + (isActive ? seconds : 0)}
-          streakCount={userData.streakCount}
+          streakCount={streakCount} // Updated to use local state
           battlePoints={userData.battlePoints}
           setSettingsOpen={setSettingsOpen}
           setQuickCaptureOpen={setQuickCaptureOpen}
@@ -212,6 +253,9 @@ const Dashboard = ({ theme, onSetTheme, themeOptions, onLogout }) => {
             setResourceDeckEnabled(!resourceDeckEnabled)
           }
           formatHours={formatHours}
+          // 🔥 Passing New Props
+          hasCheckedInToday={hasCheckedInToday}
+          onCheckIn={handleDailyCheckIn}
         />
 
         {/* PAGE CONTENT */}
@@ -277,7 +321,7 @@ const Dashboard = ({ theme, onSetTheme, themeOptions, onLogout }) => {
         <ZenMode
           setZenMode={setZenMode}
           isActive={isActive}
-          setIsActive={setIsActive} // Ye pass karna zaroori tha timer start karne ke liye
+          setIsActive={setIsActive}
           seconds={seconds}
           todayDeepSeconds={todayDeepSeconds}
           setQuickCaptureOpen={setQuickCaptureOpen}

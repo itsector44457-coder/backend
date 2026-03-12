@@ -2,15 +2,25 @@ const express = require("express");
 const router = express.Router();
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const TestResult = require("../models/TestResult");
+
+// Initialize Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // 🧠 AI MOCK TEST GENERATOR ROUTE
+// 🔥 FIX 1: Sirf relative path rakha hai (backend ka url yahan nahi aayega)
 router.get("/generate/:field/:subject/:topic/:difficulty", async (req, res) => {
   try {
-    const { field, subject, topic, difficulty } = req.params;
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    // Decode parameters (Taaki %20 aur & wale symbol sahi se padh sake)
+    const field = decodeURIComponent(req.params.field);
+    const subject = decodeURIComponent(req.params.subject);
+    const topic = decodeURIComponent(req.params.topic);
+    const difficulty = decodeURIComponent(req.params.difficulty);
 
-    // 🔥 UPGRADED PROMPT: Explicit constraints for array indexing
+    console.log(`Generating test for: ${topic} (${difficulty})`);
+
+    // 🔥 FIX 2: Sahi model ka naam use kiya hai
+    const model = genAI.getGenerativeModel({ model: "gemma-3-1b-it" });
+
     const prompt = `You are an expert examiner for ${field}. 
     Generate a mock test for the topic "${topic}" under the subject "${subject}".
     
@@ -40,11 +50,12 @@ router.get("/generate/:field/:subject/:topic/:difficulty", async (req, res) => {
     const result = await model.generateContent(prompt);
     let text = result.response.text();
 
-    // 🔥 BULLETPROOF JSON CLEANER (Industry Hack)
+    // 🔥 BULLETPROOF JSON CLEANER
     text = text
-      .replace(/```json/g, "")
-      .replace(/```/g, "")
+      .replace(/```json/gi, "")
+      .replace(/```/gi, "")
       .trim();
+
     const startIndex = text.indexOf("[");
     const endIndex = text.lastIndexOf("]");
 
@@ -66,6 +77,9 @@ router.get("/generate/:field/:subject/:topic/:difficulty", async (req, res) => {
   }
 });
 
+// ==========================================
+// 💾 2. SAVE TEST RESULT
+// ==========================================
 router.post("/save-result", async (req, res) => {
   try {
     const {
@@ -106,7 +120,6 @@ router.post("/save-result", async (req, res) => {
 router.get("/history/:userId/:topicId", async (req, res) => {
   try {
     const { userId, topicId } = req.params;
-    // Latest test pehle aayega (sort by createdAt descending)
     const history = await TestResult.find({ userId, topicId }).sort({
       createdAt: -1,
     });

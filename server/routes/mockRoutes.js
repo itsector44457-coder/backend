@@ -19,7 +19,7 @@ router.get("/generate/:field/:subject/:topic/:difficulty", async (req, res) => {
     console.log(`Generating test for: ${topic} (${difficulty})`);
 
     // 🔥 FIX 2: Sahi model ka naam use kiya hai
-    const model = genAI.getGenerativeModel({ model: "gemma-3-1b-it" });
+    const model = genAI.getGenerativeModel({ model: "gemma-3-27b-it" });
 
     const prompt = `You are an expert examiner for ${field}. 
     Generate a mock test for the topic "${topic}" under the subject "${subject}".

@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import {
   Play,
   Pause,
   Square,
-  AlertTriangle,
   Swords,
   Loader2,
+  ExternalLink, // 🔥 NEW ICON FOR PiP
 } from "lucide-react";
 
 const StudyTimer = ({
@@ -16,13 +16,15 @@ const StudyTimer = ({
   setSeconds,
   onSessionSaved,
   battle,
-  incomingBattles,
   onBattleLose,
 }) => {
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState("pause");
   const [feedback, setFeedback] = useState({ reason: "", work: "" });
   const [saving, setSaving] = useState(false);
+
+  // 🔥 PiP Window Reference
+  const pipWindowRef = useRef(null);
 
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
   const myId = currentUser?.id || currentUser?._id;
@@ -32,6 +34,84 @@ const StudyTimer = ({
       ? battle?.opponentId
       : battle?.challengerId;
 
+  // ============================
+  // 🕒 FORMAT TIME FUNCTION
+  // ============================
+  const formatTime = (s) => {
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const rs = s % 60;
+    return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${rs.toString().padStart(2, "0")}`;
+  };
+
+  // ============================
+  // 🚀 PiP WINDOW SYNC
+  // ============================
+  // Jab bhi 'seconds' update ho, PiP window ka time bhi update karo
+  useEffect(() => {
+    if (pipWindowRef.current && pipWindowRef.current.document) {
+      const timeElement =
+        pipWindowRef.current.document.getElementById("pip-time");
+      if (timeElement) {
+        timeElement.innerText = formatTime(seconds);
+      }
+    }
+  }, [seconds]);
+
+  // ============================
+  // 🪟 OPEN FLOATING TIMER (PiP)
+  // ============================
+  const openFloatingTimer = async () => {
+    if (!("documentPictureInPicture" in window)) {
+      return alert(
+        "Bhai, tumhara browser is feature ko support nahi karta. Chrome update karo!",
+      );
+    }
+
+    try {
+      // Create PiP Window
+      const pipWindow = await window.documentPictureInPicture.requestWindow({
+        width: 300,
+        height: 150,
+      });
+
+      pipWindowRef.current = pipWindow;
+
+      // Inject UI inside the floating window
+      pipWindow.document.body.innerHTML = `
+        <div style="
+          display: flex; 
+          flex-direction: column; 
+          justify-content: center; 
+          align-items: center; 
+          height: 100vh; 
+          background: #0f172a; 
+          color: #fff; 
+          font-family: system-ui, sans-serif;
+          margin: 0;
+          overflow: hidden;
+        ">
+          <div style="font-size: 10px; color: #818cf8; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 8px; font-weight: 900;">
+            ⚡ Skill Vault
+          </div>
+          <div id="pip-time" style="font-size: 48px; font-weight: 900; letter-spacing: 2px; color: #10b981; font-variant-numeric: tabular-nums;">
+            ${formatTime(seconds)}
+          </div>
+        </div>
+      `;
+
+      // Agar user ne galti se choti window band kar di
+      pipWindow.addEventListener("pagehide", () => {
+        pipWindowRef.current = null;
+      });
+    } catch (error) {
+      console.error("PiP failed", error);
+    }
+  };
+
+  // ============================
+  // 💾 SAVE SESSION DATA
+  // ============================
   const handleFinalSave = async (isTermination) => {
     if (seconds < 1) return alert("Bhai, thoda toh padh lo! 😂");
     try {
@@ -65,6 +145,13 @@ const StudyTimer = ({
       onSessionSaved(seconds);
       setShowModal(false);
       setFeedback({ reason: "", work: "" });
+
+      // Agar PiP khuli hui thi toh band kar do
+      if (pipWindowRef.current) {
+        pipWindowRef.current.close();
+        pipWindowRef.current = null;
+      }
+
       alert("Session Synced to Hub! 🚀");
     } catch (err) {
       alert(`Error: ${err.response?.data?.message || "Server Error"}`);
@@ -73,21 +160,24 @@ const StudyTimer = ({
     }
   };
 
-  const formatTime = (s) => {
-    const h = Math.floor(s / 3600);
-    const m = Math.floor((s % 3600) / 60);
-    const rs = s % 60;
-    return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${rs.toString().padStart(2, "0")}`;
-  };
-
   return (
     <div className="bg-white rounded-[1.5rem] sm:rounded-[2.5rem] border border-slate-100 p-5 sm:p-8 shadow-sm transition-all duration-300">
       {/* 1. Top Section (Timer & Battle Status) */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3 sm:gap-0 mb-6 sm:mb-8">
         <div>
-          <h3 className="text-[9px] sm:text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] mb-1">
-            Neural Mission Clock
-          </h3>
+          <div className="flex items-center gap-3 mb-1">
+            <h3 className="text-[9px] sm:text-[10px] uppercase font-black text-slate-400 tracking-[0.2em]">
+              Neural Mission Clock
+            </h3>
+            {/* 🔥 NEW PIP BUTTON */}
+            <button
+              onClick={openFloatingTimer}
+              title="Pop out Floating Timer"
+              className="text-indigo-400 hover:text-indigo-600 bg-indigo-50 p-1.5 rounded-lg transition-colors active:scale-95"
+            >
+              <ExternalLink size={14} />
+            </button>
+          </div>
           <div className="text-5xl sm:text-6xl font-black text-indigo-600 font-mono italic tracking-tighter leading-none">
             {formatTime(seconds)}
           </div>

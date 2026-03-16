@@ -80,96 +80,98 @@ const AuthScreen = ({ onLoginSuccess }) => {
           field: formData.field,
         });
 
-        setSuccess(res.data.message || "Account created! Syncing...");
+        setSuccess(res.data.message || "Account created successfully!");
         setTimeout(() => {
           setIsLogin(true);
           setSuccess("");
         }, 2000);
       }
     } catch (err) {
-      setError(err.response?.data?.message || "System Offline. Try again.");
+      setError(
+        err.response?.data?.message ||
+          "Something went wrong. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-[100dvh] bg-[#0f172a] flex items-center justify-center p-3 sm:p-4 relative overflow-hidden font-sans">
-      {/* Background Glows */}
-      <div className="absolute top-[-10%] left-[-10%] w-[60%] sm:w-[40%] h-[40%] bg-indigo-600/20 rounded-full blur-[80px] sm:blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[60%] sm:w-[40%] h-[40%] bg-purple-600/20 rounded-full blur-[80px] sm:blur-[120px] pointer-events-none" />
+    <div className="min-h-[100dvh] bg-slate-50 flex items-center justify-center p-4 sm:p-6 font-sans">
+      {/* 📦 Main Container - Classic SaaS Split Screen */}
+      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 bg-white rounded-2xl sm:rounded-3xl shadow-xl overflow-hidden relative max-h-[95vh] sm:max-h-none overflow-y-auto no-scrollbar border border-slate-100">
+        {/* 🎨 Left Side: Brand Panel (Hidden on Mobile) */}
+        <div className="hidden lg:flex flex-col justify-between p-12 bg-indigo-600 text-white relative overflow-hidden">
+          {/* Subtle background decoration */}
+          <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-indigo-500/50 to-purple-600/50 pointer-events-none" />
 
-      {/* Main Container - max-h-[90vh] ensures it's scrollable when keyboard is open */}
-      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[2rem] sm:rounded-[3rem] shadow-2xl overflow-hidden relative z-10 max-h-[95vh] sm:max-h-none overflow-y-auto no-scrollbar">
-        {/* Left Side: Desktop Branding (Hidden on Mobile) */}
-        <div className="hidden lg:flex flex-col justify-between p-12 bg-gradient-to-br from-indigo-900/50 to-slate-900/50 border-r border-white/10">
-          <div>
-            <div className="w-16 h-16 bg-indigo-500 rounded-3xl flex items-center justify-center shadow-lg shadow-indigo-500/30 mb-8">
-              <Zap size={32} className="text-white fill-white" />
+          <div className="relative z-10">
+            <div className="w-14 h-14 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 mb-8 shadow-sm">
+              <Zap size={28} className="text-white" />
             </div>
-            <h1 className="text-5xl font-black text-white uppercase italic tracking-tighter leading-none mb-4">
-              Universe <br />
-              <span className="text-indigo-400">Hub</span>
+            <h1 className="text-4xl font-bold tracking-tight mb-4 leading-tight">
+              Welcome to <br /> Universe Hub
             </h1>
-            <p className="text-slate-400 font-bold tracking-widest uppercase text-xs leading-relaxed max-w-sm">
-              Advanced Neural Network for Data Science, Robotics, and Tech
-              Mastery. Sync your brain now.
+            <p className="text-indigo-100 font-medium leading-relaxed max-w-sm text-sm">
+              Your centralized platform for tech mastery, peer challenges, and
+              career acceleration. Join the community today.
             </p>
           </div>
 
-          <div className="bg-white/5 border border-white/10 p-6 rounded-3xl backdrop-blur-md">
-            <p className="text-xs font-black text-indigo-300 uppercase tracking-widest mb-2 flex items-center gap-2">
-              <ShieldCheck size={14} /> System Status
+          <div className="relative z-10 bg-white/10 border border-white/20 p-5 rounded-2xl backdrop-blur-md">
+            <p className="text-sm font-bold text-white mb-1.5 flex items-center gap-2">
+              <ShieldCheck size={18} className="text-indigo-300" /> Secure
+              Access
             </p>
-            <p className="text-white font-medium text-sm">
-              End-to-End Encrypted. JWT Authentication Active. Ready for
-              Commander Login.
+            <p className="text-indigo-100 font-medium text-xs leading-relaxed">
+              End-to-end encrypted authentication. Your data and progress are
+              safely synced to the matrix.
             </p>
           </div>
         </div>
 
-        {/* Right Side: Auth Form */}
-        <div className="p-6 sm:p-8 md:p-12 flex flex-col justify-center">
-          {/* Mobile Header (Visible on Mobile) */}
+        {/* 📝 Right Side: Auth Form */}
+        <div className="p-6 sm:p-10 md:p-14 flex flex-col justify-center bg-white">
+          {/* Mobile Header (Visible only on Mobile) */}
           <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 bg-indigo-500 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20 shrink-0">
-              <Zap size={20} className="text-white fill-white" />
+            <div className="w-12 h-12 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center justify-center shrink-0">
+              <Zap size={24} className="text-indigo-600" />
             </div>
-            <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter">
-              Universe <span className="text-indigo-400">Hub</span>
+            <h2 className="text-2xl font-bold text-slate-800 tracking-tight">
+              Universe Hub
             </h2>
           </div>
 
           <div className="mb-8 text-left">
-            <h2 className="text-2xl sm:text-3xl font-black text-white uppercase italic tracking-tighter leading-tight">
-              {isLogin ? "System Access" : "Initialize Profile"}
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight leading-tight">
+              {isLogin ? "Welcome back" : "Create an account"}
             </h2>
-            <p className="text-slate-400 font-bold uppercase tracking-widest text-[9px] sm:text-[10px] mt-1.5">
+            <p className="text-slate-500 font-medium text-sm mt-2">
               {isLogin
-                ? "Enter credentials to sync"
-                : "Register your neural profile"}
+                ? "Enter your credentials to access your dashboard."
+                : "Fill in the details below to initialize your profile."}
             </p>
           </div>
 
-          {/* Error/Success Toasts */}
+          {/* Error/Success Alerts */}
           {error && (
-            <div className="bg-rose-500/10 border border-rose-500/50 text-rose-400 px-4 py-3 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest text-center mb-6">
+            <div className="bg-rose-50 border border-rose-200 text-rose-600 px-4 py-3 rounded-xl text-sm font-medium mb-6 flex items-center gap-2">
               {error}
             </div>
           )}
           {success && (
-            <div className="bg-emerald-500/10 border border-emerald-500/50 text-emerald-400 px-4 py-3 rounded-xl text-[10px] sm:text-xs font-black uppercase tracking-widest text-center mb-6">
+            <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl text-sm font-medium mb-6 flex items-center gap-2">
               {success}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
               <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <User
                     size={18}
-                    className="text-slate-500 group-focus-within:text-indigo-400 transition-colors"
+                    className="text-slate-400 group-focus-within:text-indigo-500 transition-colors"
                   />
                 </div>
                 <input
@@ -178,8 +180,8 @@ const AuthScreen = ({ onLoginSuccess }) => {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full bg-slate-900/50 border border-white/10 text-white rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-12 pr-4 text-xs sm:text-sm font-bold outline-none focus:border-indigo-500/50 transition-all placeholder:text-slate-600"
-                  placeholder="Commander Name"
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-xl py-3.5 pl-11 pr-4 text-sm font-medium outline-none focus:bg-white focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100 transition-all placeholder:text-slate-400"
+                  placeholder="Full Name"
                 />
               </div>
             )}
@@ -188,7 +190,7 @@ const AuthScreen = ({ onLoginSuccess }) => {
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Mail
                   size={18}
-                  className="text-slate-500 group-focus-within:text-indigo-400 transition-colors"
+                  className="text-slate-400 group-focus-within:text-indigo-500 transition-colors"
                 />
               </div>
               <input
@@ -197,7 +199,7 @@ const AuthScreen = ({ onLoginSuccess }) => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full bg-slate-900/50 border border-white/10 text-white rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-12 pr-4 text-xs sm:text-sm font-bold outline-none focus:border-indigo-500/50 transition-all placeholder:text-slate-600"
+                className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-xl py-3.5 pl-11 pr-4 text-sm font-medium outline-none focus:bg-white focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100 transition-all placeholder:text-slate-400"
                 placeholder="Email Address"
               />
             </div>
@@ -206,7 +208,7 @@ const AuthScreen = ({ onLoginSuccess }) => {
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Lock
                   size={18}
-                  className="text-slate-500 group-focus-within:text-indigo-400 transition-colors"
+                  className="text-slate-400 group-focus-within:text-indigo-500 transition-colors"
                 />
               </div>
               <input
@@ -215,8 +217,8 @@ const AuthScreen = ({ onLoginSuccess }) => {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full bg-slate-900/50 border border-white/10 text-white rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-12 pr-4 text-xs sm:text-sm font-bold outline-none focus:border-indigo-500/50 transition-all placeholder:text-slate-600"
-                placeholder="Security Protocol (Password)"
+                className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-xl py-3.5 pl-11 pr-4 text-sm font-medium outline-none focus:bg-white focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100 transition-all placeholder:text-slate-400"
+                placeholder="Password"
               />
             </div>
 
@@ -225,7 +227,7 @@ const AuthScreen = ({ onLoginSuccess }) => {
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <Target
                     size={18}
-                    className="text-slate-500 group-focus-within:text-indigo-400 transition-colors"
+                    className="text-slate-400 group-focus-within:text-indigo-500 transition-colors"
                   />
                 </div>
                 <select
@@ -233,13 +235,19 @@ const AuthScreen = ({ onLoginSuccess }) => {
                   name="field"
                   value={formData.field}
                   onChange={handleChange}
-                  className={`w-full bg-slate-900/50 border border-white/10 ${formData.field === "" ? "text-slate-500" : "text-white"} rounded-xl sm:rounded-2xl py-3.5 sm:py-4 pl-12 pr-4 text-xs sm:text-sm font-bold outline-none focus:border-indigo-500/50 transition-all appearance-none cursor-pointer`}
+                  className={`w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 pl-11 pr-4 text-sm font-medium outline-none focus:bg-white focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100 transition-all appearance-none cursor-pointer ${
+                    formData.field === "" ? "text-slate-400" : "text-slate-900"
+                  }`}
                 >
                   <option value="" disabled>
-                    Select Domain Matrix
+                    Select your domain
                   </option>
                   {dynamicFields.map((f) => (
-                    <option key={f._id} value={f.field} className="text-black">
+                    <option
+                      key={f._id}
+                      value={f.field}
+                      className="text-slate-900"
+                    >
                       {f.field}
                     </option>
                   ))}
@@ -250,34 +258,35 @@ const AuthScreen = ({ onLoginSuccess }) => {
             <button
               disabled={loading}
               type="submit"
-              className="w-full bg-indigo-600 text-white rounded-xl sm:rounded-2xl py-3.5 sm:py-4 font-black uppercase italic tracking-widest text-[11px] sm:text-xs hover:bg-indigo-500 shadow-lg shadow-indigo-600/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2 active:scale-[0.98]"
+              className="w-full bg-indigo-600 text-white rounded-xl py-3.5 font-semibold text-sm hover:bg-indigo-700 shadow-sm transition-all disabled:opacity-70 flex items-center justify-center gap-2 mt-2"
             >
               {loading ? (
-                <Loader2 size={16} className="animate-spin" />
+                <Loader2 size={18} className="animate-spin" />
               ) : (
                 <>
-                  {isLogin ? "Establish Connection" : "Authorize Node"}
-                  <ChevronRight size={16} />
+                  {isLogin ? "Log In" : "Create Account"}
+                  <ChevronRight size={18} />
                 </>
               )}
             </button>
           </form>
 
-          <div className="mt-8 text-center pb-4 sm:pb-0">
-            <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">
-              {isLogin ? "New to the Universe?" : "Already a Commander?"}
+          {/* Toggle Login/Signup */}
+          <div className="mt-8 text-center">
+            <p className="text-slate-500 text-sm font-medium">
+              {isLogin ? "Don't have an account?" : "Already have an account?"}
+              <button
+                onClick={() => {
+                  setIsLogin(!isLogin);
+                  setError("");
+                  setSuccess("");
+                  setFormData({ ...formData, field: "" });
+                }}
+                className="ml-1.5 text-indigo-600 hover:text-indigo-700 font-semibold transition-colors focus:outline-none"
+              >
+                {isLogin ? "Sign up" : "Log in"}
+              </button>
             </p>
-            <button
-              onClick={() => {
-                setIsLogin(!isLogin);
-                setError("");
-                setSuccess("");
-                setFormData({ ...formData, field: "" });
-              }}
-              className="mt-2 text-indigo-400 hover:text-indigo-300 text-[10px] sm:text-xs font-black uppercase italic tracking-[0.2em] transition-colors active:scale-95"
-            >
-              {isLogin ? "Initialize New Profile" : "Switch to Login"}
-            </button>
           </div>
         </div>
       </div>

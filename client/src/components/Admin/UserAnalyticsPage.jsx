@@ -13,6 +13,7 @@ import {
   Timer,
   LogIn,
   History,
+  Loader2,
 } from "lucide-react";
 
 const UserAnalyticsPage = () => {

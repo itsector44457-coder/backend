@@ -28,7 +28,7 @@ const Sidebar = ({ setZenMode, onLogout }) => {
     { path: "/dashboard/syllabus", icon: BookOpen, label: "Syllabus" },
     { path: "/dashboard/battle-arena", icon: Swords, label: "Battle Arena" },
     { path: "/dashboard/battles", icon: History, label: "Combat Records" },
-    { path: "/dashboard/flashcard-stats", icon: BarChart2, label: "Analytics" },
+    { path: "/dashboard/flashcard-stats", icon: BarChart2, label: "Anlytic" },
     { path: "/dashboard/community", icon: Users, label: "Community" },
     { path: "/dashboard/network", icon: UserPlus, label: "Network" },
     { path: "/dashboard/universe", icon: Sparkles, label: "Universe" },

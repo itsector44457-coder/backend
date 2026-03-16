@@ -152,50 +152,53 @@ const MockTest = ({
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[600] flex items-center justify-center p-0 sm:p-4">
+        <div className="fixed inset-0 z-[600] flex items-center justify-center p-0 sm:p-4 font-sans">
+          {/* Soft Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-slate-950/95 backdrop-blur-lg"
+            className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
           />
 
           <motion.div
-            initial={{ scale: 0.95, opacity: 0, y: 50 }}
+            initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.95, opacity: 0, y: 50 }}
-            // 🔥 THE FIX: Full screen on mobile h-[100dvh], floating on laptop
-            className="relative w-full max-w-5xl h-[100dvh] sm:h-[90vh] bg-[#0f1221] border-x-0 sm:border border-indigo-500/30 sm:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col"
+            exit={{ scale: 0.95, opacity: 0, y: 20 }}
+            // Clean White Background Container
+            className="relative w-full max-w-4xl h-[100dvh] sm:h-[90vh] bg-white border border-slate-100 sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col"
           >
             {/* 🟢 HEADER */}
-            <div className="flex items-center justify-between px-5 py-4 sm:px-8 sm:py-5 border-b border-white/10 bg-slate-900/80 shrink-0">
-              <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-500/20 flex items-center justify-center rounded-xl sm:rounded-2xl border border-indigo-500/30 shrink-0">
-                  <Swords size={20} className="text-indigo-400 sm:w-6 sm:h-6" />
+            <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 bg-white shrink-0">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 bg-indigo-50 flex items-center justify-center rounded-xl border border-indigo-100 shrink-0">
+                  <Swords size={20} className="text-indigo-600" />
                 </div>
                 <div className="truncate">
-                  <h2 className="text-base sm:text-xl font-black text-white uppercase italic tracking-widest leading-none">
+                  <h2 className="text-base sm:text-lg font-bold text-slate-800 tracking-tight leading-none">
                     Combat Arena
                   </h2>
-                  <p className="text-[8px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1 truncate">
+                  <p className="text-xs text-slate-500 font-medium mt-1 truncate">
                     Node:{" "}
-                    <span className="text-indigo-400">{topic?.title}</span>
+                    <span className="text-indigo-600">{topic?.title}</span>
                   </p>
                 </div>
               </div>
 
               {!loading && !isFinished && !error && questions.length > 0 && (
-                <div className="flex items-center gap-2 sm:gap-3 bg-slate-950 px-3 py-1.5 sm:px-5 sm:py-2.5 rounded-xl border border-white/5 shadow-inner shrink-0">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-200 shrink-0">
                   <Timer
-                    size={14}
+                    size={16}
                     className={
                       timeLeft < 60
                         ? "text-rose-500 animate-pulse"
-                        : "text-indigo-400"
+                        : "text-slate-500"
                     }
                   />
                   <span
-                    className={`font-black text-base sm:text-xl tracking-widest ${timeLeft < 60 ? "text-rose-500" : "text-white"}`}
+                    className={`font-semibold text-sm font-mono ${
+                      timeLeft < 60 ? "text-rose-600" : "text-slate-700"
+                    }`}
                   >
                     {formatTime(timeLeft)}
                   </span>
@@ -205,7 +208,7 @@ const MockTest = ({
               {(isFinished || error) && (
                 <button
                   onClick={onClose}
-                  className="p-2 bg-white/5 hover:bg-rose-500/20 text-slate-400 rounded-full transition-all active:scale-90"
+                  className="p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 rounded-lg transition-colors"
                 >
                   <X size={20} />
                 </button>
@@ -213,140 +216,190 @@ const MockTest = ({
             </div>
 
             {/* 🟢 MAIN CONTENT */}
-            <div className="flex-1 overflow-y-auto p-5 sm:p-10 relative no-scrollbar">
+            <div className="flex-1 overflow-y-auto p-5 sm:p-8 bg-slate-50/50 relative no-scrollbar">
               {error ? (
                 <div className="h-full flex flex-col items-center justify-center text-center">
-                  <AlertTriangle size={48} className="text-rose-500 mb-4" />
-                  <h3 className="text-xl font-black text-white uppercase">
+                  <AlertTriangle size={40} className="text-rose-500 mb-3" />
+                  <h3 className="text-lg font-bold text-slate-800">
                     Sync Failure
                   </h3>
-                  <p className="text-xs text-slate-400 mt-2 max-w-xs">
+                  <p className="text-sm text-slate-500 mt-2 max-w-xs">
                     {error}
                   </p>
                   <button
                     onClick={onClose}
-                    className="mt-6 px-8 py-3 bg-indigo-600 text-white rounded-xl font-black uppercase text-[10px]"
+                    className="mt-6 px-6 py-2.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-lg font-medium text-sm transition-colors"
                   >
-                    Abort
+                    Close Arena
                   </button>
                 </div>
               ) : loading ? (
                 <div className="h-full flex flex-col items-center justify-center">
                   <Loader2
-                    size={40}
+                    size={36}
                     className="animate-spin text-indigo-500 mb-4"
                   />
-                  <p className="text-[10px] font-black uppercase tracking-widest text-indigo-400 animate-pulse text-center">
+                  <p className="text-sm font-medium text-slate-500">
                     Synthesizing Battle Logic...
                   </p>
                 </div>
               ) : isFinished ? (
                 // 🏆 RESULTS VIEW
-                <div className="max-w-2xl mx-auto flex flex-col items-center text-center py-4">
-                  <div className="w-24 h-24 sm:w-32 sm:h-32 bg-slate-900 rounded-full flex items-center justify-center border-4 border-indigo-500/30 shadow-2xl mb-6 relative">
+                <div className="max-w-2xl mx-auto flex flex-col items-center py-4">
+                  <div className="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center border border-indigo-100 shadow-sm mb-4">
                     <Trophy
-                      size={40}
+                      size={32}
                       className={
                         score >= questions.length * 8
-                          ? "text-amber-400"
-                          : "text-slate-500"
+                          ? "text-amber-500"
+                          : "text-slate-400"
                       }
                     />
-                    <div className="absolute -bottom-3 bg-indigo-600 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase border-2 border-[#0f1221]">
-                      Score: {score}
-                    </div>
                   </div>
-                  <h3 className="text-2xl sm:text-4xl font-black text-white uppercase italic mb-8">
+                  <h3 className="text-2xl font-bold text-slate-800 tracking-tight mb-2">
                     {score >= questions.length * 8
                       ? "Mission Accomplished"
                       : "Mission Failed"}
                   </h3>
+                  <p className="text-sm font-medium text-slate-500 mb-8 bg-white border border-slate-200 px-4 py-1.5 rounded-full shadow-sm">
+                    Final Score:{" "}
+                    <span className="font-bold text-indigo-600">{score}</span>
+                  </p>
 
                   <div className="w-full space-y-4 text-left">
-                    {questions.map((q, i) => (
-                      <div
-                        key={i}
-                        className="p-4 rounded-2xl bg-white/5 border border-white/5"
-                      >
-                        <p className="text-sm font-bold text-white mb-3">
-                          Q{i + 1}: {q.questionText}
-                        </p>
+                    {questions.map((q, i) => {
+                      const isCorrect = selectedAnswers[i] === q.correctAnswer;
+                      const isSkipped = selectedAnswers[i] === undefined;
+
+                      return (
                         <div
-                          className={`text-xs font-bold p-3 rounded-xl flex items-center gap-2 ${selectedAnswers[i] === q.correctAnswer ? "bg-emerald-500/10 text-emerald-400" : "bg-rose-500/10 text-rose-400"}`}
+                          key={i}
+                          className="p-5 rounded-xl bg-white border border-slate-200 shadow-sm"
                         >
-                          {selectedAnswers[i] === q.correctAnswer ? (
-                            <CheckCircle2 size={14} />
-                          ) : (
-                            <XCircle size={14} />
-                          )}
-                          Your Logic:{" "}
-                          {q.options?.[selectedAnswers[i]] || "Skipped"}
-                        </div>
-                        {selectedAnswers[i] !== q.correctAnswer && (
-                          <p className="text-xs text-emerald-400 mt-2 ml-1">
-                            ✓ Correct Data: {q.options?.[q.correctAnswer]}
+                          <p className="text-sm font-semibold text-slate-800 mb-4">
+                            {i + 1}. {q.questionText}
                           </p>
-                        )}
-                        <p className="text-[10px] text-slate-500 mt-3 bg-slate-950/50 p-3 rounded-xl italic leading-relaxed">
-                          <span className="text-indigo-400 font-black uppercase mr-1">
-                            Insight:
-                          </span>{" "}
-                          {q.explanation}
-                        </p>
-                      </div>
-                    ))}
+
+                          <div
+                            className={`p-3 rounded-lg flex items-start gap-3 border ${
+                              isCorrect
+                                ? "bg-emerald-50 border-emerald-100"
+                                : isSkipped
+                                  ? "bg-slate-50 border-slate-200"
+                                  : "bg-rose-50 border-rose-100"
+                            }`}
+                          >
+                            <div className="mt-0.5">
+                              {isCorrect ? (
+                                <CheckCircle2
+                                  size={16}
+                                  className="text-emerald-600"
+                                />
+                              ) : (
+                                <XCircle
+                                  size={16}
+                                  className={
+                                    isSkipped
+                                      ? "text-slate-400"
+                                      : "text-rose-600"
+                                  }
+                                />
+                              )}
+                            </div>
+                            <div className="flex-1">
+                              <p
+                                className={`text-sm font-medium ${
+                                  isCorrect
+                                    ? "text-emerald-800"
+                                    : isSkipped
+                                      ? "text-slate-600"
+                                      : "text-rose-800"
+                                }`}
+                              >
+                                Your Logic:{" "}
+                                {q.options?.[selectedAnswers[i]] || "Skipped"}
+                              </p>
+                              {!isCorrect && (
+                                <p className="text-sm font-medium text-emerald-600 mt-2 flex items-center gap-1.5">
+                                  <CheckCircle2 size={14} /> Correct Data:{" "}
+                                  {q.options?.[q.correctAnswer]}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="mt-4 p-3 bg-slate-50 rounded-lg border border-slate-100">
+                            <p className="text-xs text-slate-600 leading-relaxed">
+                              <span className="font-semibold text-indigo-600 mr-1">
+                                Insight:
+                              </span>
+                              {q.explanation}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               ) : (
                 // ❓ QUESTION VIEW
                 questions.length > 0 && (
-                  <div className="max-w-3xl mx-auto h-full flex flex-col pb-10">
-                    <div className="w-full bg-slate-900 h-1.5 rounded-full mb-6 overflow-hidden">
+                  <div className="max-w-3xl mx-auto h-full flex flex-col pb-6">
+                    {/* Slim Progress Bar */}
+                    <div className="w-full bg-slate-200 h-1.5 rounded-full mb-6 overflow-hidden">
                       <div
-                        className="bg-indigo-500 h-full transition-all duration-500"
+                        className="bg-indigo-600 h-full transition-all duration-300 ease-out"
                         style={{
                           width: `${((currentIndex + 1) / questions.length) * 100}%`,
                         }}
                       />
                     </div>
 
-                    <div className="flex items-center gap-2 mb-4">
-                      <span className="px-2 py-0.5 bg-indigo-500/20 text-indigo-400 text-[8px] font-black uppercase rounded">
-                        Signal {currentIndex + 1} / {questions.length}
+                    <div className="mb-4">
+                      <span className="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md">
+                        Question {currentIndex + 1} of {questions.length}
                       </span>
                     </div>
 
-                    <h3 className="text-lg sm:text-2xl font-bold text-white leading-snug mb-8">
+                    <h3 className="text-lg sm:text-xl font-semibold text-slate-800 leading-relaxed mb-8">
                       {questions[currentIndex]?.questionText}
                     </h3>
 
                     <div className="space-y-3 flex-1">
-                      {questions[currentIndex]?.options?.map((option, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => handleOptionSelect(idx)}
-                          className={`w-full text-left p-4 sm:p-5 rounded-xl sm:rounded-2xl border-2 transition-all flex items-center gap-3 sm:gap-4 active:scale-[0.98] ${
-                            selectedAnswers[currentIndex] === idx
-                              ? "bg-indigo-600/20 border-indigo-500 shadow-lg"
-                              : "bg-slate-900/50 border-white/5"
-                          }`}
-                        >
-                          <div
-                            className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center text-[10px] font-black shrink-0 ${
-                              selectedAnswers[currentIndex] === idx
-                                ? "bg-indigo-500 text-white"
-                                : "bg-white/5 text-slate-500"
+                      {questions[currentIndex]?.options?.map((option, idx) => {
+                        const isSelected =
+                          selectedAnswers[currentIndex] === idx;
+                        return (
+                          <button
+                            key={idx}
+                            onClick={() => handleOptionSelect(idx)}
+                            className={`w-full text-left p-4 rounded-xl border transition-all flex items-center gap-4 ${
+                              isSelected
+                                ? "bg-indigo-50 border-indigo-600 shadow-sm"
+                                : "bg-white border-slate-200 hover:border-indigo-300 hover:bg-slate-50"
                             }`}
                           >
-                            {String.fromCharCode(65 + idx)}
-                          </div>
-                          <span
-                            className={`text-xs sm:text-sm font-medium ${selectedAnswers[currentIndex] === idx ? "text-white" : "text-slate-300"}`}
-                          >
-                            {option}
-                          </span>
-                        </button>
-                      ))}
+                            <div
+                              className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0 transition-colors ${
+                                isSelected
+                                  ? "bg-indigo-600 text-white"
+                                  : "bg-slate-100 text-slate-500"
+                              }`}
+                            >
+                              {String.fromCharCode(65 + idx)}
+                            </div>
+                            <span
+                              className={`text-sm font-medium ${
+                                isSelected
+                                  ? "text-indigo-900"
+                                  : "text-slate-700"
+                              }`}
+                            >
+                              {option}
+                            </span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 )
@@ -355,30 +408,30 @@ const MockTest = ({
 
             {/* 🟢 FOOTER */}
             {!loading && !isFinished && !error && questions.length > 0 && (
-              <div className="px-5 py-4 sm:px-8 sm:py-5 border-t border-white/10 bg-slate-900/80 shrink-0 flex items-center justify-between">
+              <div className="px-5 py-4 border-t border-slate-100 bg-white shrink-0 flex items-center justify-between">
                 <button
                   onClick={() =>
                     currentIndex > 0 && setCurrentIndex(currentIndex - 1)
                   }
                   disabled={currentIndex === 0}
-                  className="p-3 text-slate-400 disabled:opacity-20 active:bg-white/5 rounded-xl transition-all"
+                  className="px-4 py-2 text-slate-500 disabled:opacity-30 hover:bg-slate-50 rounded-lg transition-colors flex items-center gap-1 text-sm font-medium"
                 >
-                  <ChevronLeft size={24} />
+                  <ChevronLeft size={18} /> Back
                 </button>
 
                 {currentIndex === questions.length - 1 ? (
                   <button
                     onClick={handleSubmitTest}
-                    className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-black uppercase text-[10px] tracking-widest shadow-xl active:scale-95 transition-all"
+                    className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg font-medium text-sm hover:bg-indigo-700 transition-colors shadow-sm"
                   >
                     Submit Combat
                   </button>
                 ) : (
                   <button
                     onClick={() => setCurrentIndex(currentIndex + 1)}
-                    className="p-3 bg-white/10 text-indigo-400 rounded-xl active:scale-95 transition-all"
+                    className="px-4 py-2 bg-slate-900 text-white hover:bg-slate-800 rounded-lg transition-colors flex items-center gap-1 text-sm font-medium"
                   >
-                    <ChevronRight size={24} />
+                    Next <ChevronRight size={18} />
                   </button>
                 )}
               </div>

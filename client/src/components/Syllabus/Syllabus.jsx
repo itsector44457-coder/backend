@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import { Loader2, Target, BrainCircuit } from "lucide-react";
+import { Loader2, Target, BrainCircuit, CheckCircle2 } from "lucide-react";
 
 import SubjectSidebar from "../Syllabus/SubjectSidebar";
 import TopicList from "../Syllabus/TopicList";
@@ -62,7 +62,6 @@ const Syllabus = ({ myField = "" }) => {
   /* ===============================
         LOAD ROADMAP AS SYLLABUS
   =============================== */
-
   const loadRoadmapSyllabus = async () => {
     if (!myId) return;
 
@@ -132,7 +131,6 @@ const Syllabus = ({ myField = "" }) => {
   /* ===============================
         UI HANDLERS
   =============================== */
-
   const handleTopicToggle = () => {};
   const handleQuizSubmit = () => {};
 
@@ -149,13 +147,10 @@ const Syllabus = ({ myField = "" }) => {
   const handleTestComplete = (score, isPassed) => {
     if (isPassed) {
       const newXP = (currentUser.battlePoints || 0) + 50;
-
       const updatedUser = { ...currentUser, battlePoints: newXP };
 
       localStorage.setItem("user", JSON.stringify(updatedUser));
-
       setCurrentUser(updatedUser);
-
       window.dispatchEvent(new Event("user_updated"));
 
       setNotice(`Mission Accomplished! +50 XP Awarded.`);
@@ -169,20 +164,18 @@ const Syllabus = ({ myField = "" }) => {
   /* ===============================
         LOADING SCREEN
   =============================== */
-
   if (loading || testLoading)
     return (
-      <div className="h-full flex flex-col items-center justify-center bg-[#f8fafc]">
-        <div className="relative">
-          <Loader2 className="animate-spin text-indigo-600 mb-4" size={50} />
+      <div className="h-full flex flex-col items-center justify-center bg-slate-50">
+        <div className="relative mb-3">
+          <Loader2 className="animate-spin text-indigo-500" size={36} />
           <BrainCircuit
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-indigo-300"
-            size={20}
+            size={16}
           />
         </div>
-
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 animate-pulse mt-4">
-          Syncing AI Matrix to Workspace...
+        <p className="text-sm font-medium text-slate-500 tracking-wide">
+          Syncing AI Matrix...
         </p>
       </div>
     );
@@ -190,56 +183,63 @@ const Syllabus = ({ myField = "" }) => {
   /* ===============================
         UI
   =============================== */
-
   return (
-    <div className="h-full flex flex-col gap-5 font-sans text-slate-900 bg-[#f8fafc] overflow-hidden max-h-screen p-4 relative">
-      {/* HEADER */}
-      <div className="bg-white border border-slate-100 rounded-[2.5rem] p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shrink-0">
-        <div className="flex items-center gap-6">
-          <div className="w-14 h-14 bg-slate-900 rounded-3xl flex items-center justify-center text-indigo-500 shadow-2xl shadow-indigo-200 shrink-0">
-            <Target size={28} />
+    <div className="h-full flex flex-col gap-4 sm:gap-5 font-sans text-slate-800 overflow-hidden p-2 sm:p-0 relative">
+      {/* 🟢 HEADER - Clean, Flat, Minimal */}
+      <div className="bg-white border border-slate-100 rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shrink-0">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-indigo-50 border border-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 shrink-0">
+            <Target size={22} className="sm:w-6 sm:h-6" />
           </div>
 
           <div>
-            <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-1 italic">
-              AI Generated Domain
+            <p className="text-[10px] font-bold text-indigo-500 uppercase tracking-wider mb-0.5">
+              Sector Domain
             </p>
-            <h3 className="text-2xl font-black text-slate-900 italic uppercase leading-none">
+            <h3 className="text-lg sm:text-xl font-bold text-slate-800 tracking-tight leading-none truncate max-w-[200px] sm:max-w-md">
               {effectiveFieldRaw}
             </h3>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 self-end md:self-auto">
-          <div className="bg-slate-50 border border-slate-100 px-6 py-3 rounded-3xl text-center">
-            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">
-              Global Mastery
+        {/* Stats Boxes - Subtle look without harsh backgrounds */}
+        <div className="flex items-center gap-2 sm:gap-3 self-stretch sm:self-auto w-full sm:w-auto">
+          <div className="flex-1 sm:flex-none bg-slate-50 border border-slate-100 px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg flex flex-col justify-center sm:items-end">
+            <p className="text-[9px] sm:text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+              Mastery
             </p>
-            <p className="text-xl font-black text-indigo-600 mt-1">
+            <p className="text-base sm:text-lg font-bold text-slate-800 mt-0.5 leading-none">
               {selectedExam?.progressPercent || 0}%
             </p>
           </div>
 
-          <div className="bg-indigo-600 text-white px-5 py-3 rounded-3xl shadow-lg shadow-indigo-100">
-            <p className="text-[9px] font-black uppercase opacity-70">
-              Sector Difficulty
+          <div className="flex-1 sm:flex-none bg-indigo-50 border border-indigo-100 px-3 py-2 sm:px-4 sm:py-2.5 rounded-lg flex flex-col justify-center sm:items-end">
+            <p className="text-[9px] sm:text-[10px] font-semibold text-indigo-400 uppercase tracking-wider">
+              Difficulty
             </p>
-            <p className="text-sm font-black uppercase tracking-widest mt-1">
+            <p className="text-sm font-bold text-indigo-700 mt-1 leading-none truncate">
               {currentDifficulty}
             </p>
           </div>
         </div>
       </div>
 
+      {/* 🍞 TOAST NOTICE - Sleek floating notification */}
       {notice && (
-        <div className="absolute top-10 left-1/2 -translate-x-1/2 z-[600] px-8 py-4 bg-indigo-600 text-white text-[12px] font-black rounded-full uppercase tracking-widest shadow-lg">
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[600] px-4 py-2 bg-slate-800 text-white text-xs font-medium rounded-lg shadow-lg flex items-center gap-2 animate-in slide-in-from-top-4 fade-in duration-300">
+          <CheckCircle2
+            size={14}
+            className={
+              notice.includes("Failed") ? "text-rose-400" : "text-emerald-400"
+            }
+          />
           {notice}
         </div>
       )}
 
-      {/* 🚀 WORKSPACE - CLEANED UP LAYOUT */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 flex-1 min-h-0 overflow-hidden">
-        {/* SUBJECT SIDEBAR (Takes 4 columns out of 12) */}
+      {/* 🚀 WORKSPACE - Grid layout maintained */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-5 flex-1 min-h-0 overflow-hidden">
+        {/* SUBJECT SIDEBAR */}
         <div className="md:col-span-4 h-full overflow-hidden">
           <SubjectSidebar
             subjects={selectedExam?.subjects || []}
@@ -251,7 +251,7 @@ const Syllabus = ({ myField = "" }) => {
           />
         </div>
 
-        {/* TOPIC LIST (Takes 8 columns out of 12 for maximum space) */}
+        {/* TOPIC LIST */}
         <div className="md:col-span-8 h-full overflow-hidden">
           <TopicList
             topics={selectedSubject?.topics || []}
@@ -268,7 +268,7 @@ const Syllabus = ({ myField = "" }) => {
         </div>
       </div>
 
-      {/* MOCK TEST MODAL */}
+      {/* MODALS */}
       <MockTest
         isOpen={isTestOpen}
         onClose={() => setIsTestOpen(false)}
@@ -283,7 +283,6 @@ const Syllabus = ({ myField = "" }) => {
         onTestComplete={handleTestComplete}
       />
 
-      {/* HISTORY MODAL */}
       <TestHistoryModal
         isOpen={isHistoryOpen}
         onClose={() => setIsHistoryOpen(false)}

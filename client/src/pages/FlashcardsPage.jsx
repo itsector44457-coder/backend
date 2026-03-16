@@ -12,20 +12,15 @@ export default function FlashcardsPage() {
   const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
   const myId = currentUser?.id || currentUser?._id;
 
-  // ➕ CREATE DECK HANDLER
   const handleCreateDeck = async (e) => {
     e.preventDefault();
     try {
       await axios.post(
         "https://backend-6hhv.onrender.com/api/flashcards/decks",
-        {
-          ...newDeck,
-          userId: myId,
-        },
+        { ...newDeck, userId: myId },
       );
       setIsModalOpen(false);
       setNewDeck({ title: "", category: "General" });
-      // Refresh page to show new deck
       window.location.reload();
     } catch (err) {
       alert("Deck creation failed!");
@@ -43,7 +38,6 @@ export default function FlashcardsPage() {
         />
       )}
 
-      {/* 🟢 CREATE DECK MODAL */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[500] bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-md rounded-[2.5rem] p-8 shadow-2xl animate-in zoom-in duration-300">
@@ -51,53 +45,37 @@ export default function FlashcardsPage() {
               <h2 className="text-xl font-black text-slate-800 uppercase italic">
                 New Neural Deck
               </h2>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="p-2 hover:bg-slate-100 rounded-full transition-colors"
-              >
+              <button onClick={() => setIsModalOpen(false)}>
                 <X size={20} className="text-slate-400" />
               </button>
             </div>
-
             <form onSubmit={handleCreateDeck} className="space-y-4">
-              <div>
-                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">
-                  Deck Title
-                </label>
-                <input
-                  required
-                  value={newDeck.title}
-                  onChange={(e) =>
-                    setNewDeck({ ...newDeck, title: e.target.value })
-                  }
-                  placeholder="e.g. React Hooks, MPPSC History..."
-                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500 mt-1"
-                />
-              </div>
-
-              <div>
-                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">
-                  Category
-                </label>
-                <select
-                  value={newDeck.category}
-                  onChange={(e) =>
-                    setNewDeck({ ...newDeck, category: e.target.value })
-                  }
-                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-sm font-bold outline-none focus:ring-2 focus:ring-indigo-500 mt-1 appearance-none"
-                >
-                  <option value="General">General</option>
-                  <option value="Programming">Programming</option>
-                  <option value="Frontend">Frontend</option>
-                  <option value="Backend">Backend</option>
-                </select>
-              </div>
-
+              <input
+                required
+                value={newDeck.title}
+                onChange={(e) =>
+                  setNewDeck({ ...newDeck, title: e.target.value })
+                }
+                placeholder="Deck Title (e.g. APIs)..."
+                className="w-full bg-slate-50 border-slate-100 rounded-2xl p-4 font-bold outline-none"
+              />
+              <select
+                value={newDeck.category}
+                onChange={(e) =>
+                  setNewDeck({ ...newDeck, category: e.target.value })
+                }
+                className="w-full bg-slate-50 border-slate-100 rounded-2xl p-4 font-bold outline-none"
+              >
+                <option value="General">General</option>
+                <option value="Programming">Programming</option>
+                <option value="Frontend">Frontend</option>
+                <option value="Backend">Backend</option>
+              </select>
               <button
                 type="submit"
-                className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black uppercase italic text-xs shadow-xl shadow-indigo-100 mt-4 flex items-center justify-center gap-2 active:scale-95 transition-all"
+                className="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black uppercase text-xs"
               >
-                <Plus size={18} /> Initialize Deck
+                Initialize Deck
               </button>
             </form>
           </div>

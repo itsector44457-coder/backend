@@ -29,6 +29,7 @@ import NeuralWeaknesses from "./components/Dashboard/SubViews/NeuralWeaknesses";
 
 // ✅ NEW: Flashcards Feature
 import FlashcardsPage from "./pages/FlashcardsPage";
+import StudyStats from "../components/flashcards/StudyStats";
 
 // --- Admin Pages ---
 import AdminLayout from "./components/Admin/AdminLayout";
@@ -131,6 +132,7 @@ function App() {
             <Route path="community" element={<Community myField={myField} />} />
             <Route path="network" element={<Network />} />
             <Route path="universe" element={<UniversePage />} />
+            <Route path="flashcard-stats" element={<StudyStats />} />
             <Route
               path="profile"
               element={

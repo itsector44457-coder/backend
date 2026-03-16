@@ -13,6 +13,19 @@ import BattleRequestModal from "../Battle/BattleRequestModal";
 
 const socket = io(`https://backend-6hhv.onrender.com`);
 
+// ── localStorage key — StudyTimer ke saath same ──────────────
+const STORAGE_KEY = "skillvault_timer";
+
+const loadFromStorage = () => {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+  } catch {
+    return null;
+  }
+};
+
+// ─────────────────────────────────────────────────────────────
+
 const Dashboard = ({ theme, onSetTheme, themeOptions, onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -38,13 +51,27 @@ const Dashboard = ({ theme, onSetTheme, themeOptions, onLogout }) => {
 
   /* ============================
         TIMER STATES
+        ✅ FIX: purana timer_seconds / timer_isActive hata diya
+        Ab sirf skillvault_timer (StudyTimer ka key) se read karo
   ============================ */
-  const [seconds, setSeconds] = useState(
-    () => Number(localStorage.getItem("timer_seconds")) || 0,
-  );
-  const [isActive, setIsActive] = useState(
-    () => localStorage.getItem("timer_isActive") === "true",
-  );
+  const [seconds, setSeconds] = useState(() => {
+    // Mount pe stored state se recover karo
+    const stored = loadFromStorage();
+    if (!stored) return 0;
+
+    if (stored.isRunning && stored.startEpoch) {
+      // Missed seconds calculate karo (page reload case)
+      const missed = Math.floor((Date.now() - stored.startEpoch) / 1000);
+      return (stored.seconds || 0) + missed;
+    }
+    return stored.seconds || 0;
+  });
+
+  const [isActive, setIsActive] = useState(() => {
+    const stored = loadFromStorage();
+    return stored?.isRunning || false;
+  });
+
   const [todayDeepSeconds, setTodayDeepSeconds] = useState(
     userData?.todayDeepSeconds || 0,
   );
@@ -108,7 +135,7 @@ const Dashboard = ({ theme, onSetTheme, themeOptions, onLogout }) => {
         `https://backend-6hhv.onrender.com/api/battles/active/${myId}`,
       );
       setActiveBattle(res.data);
-    } catch (err) {
+    } catch {
       console.log("No active battle");
     }
   };
@@ -118,20 +145,12 @@ const Dashboard = ({ theme, onSetTheme, themeOptions, onLogout }) => {
   }, [myId]);
 
   /* ============================
-        TIMER LOGIC
+        ✅ TIMER LOGIC — FIXED
+        Purana setInterval HATA DIYA
+        Ab StudyTimer ka Web Worker timer hi source of truth hai
+        Dashboard sirf seconds ko LISTEN karta hai — khud count nahi karta
+        isActive aur seconds StudyTimer ke saath shared hain (props se)
   ============================ */
-  useEffect(() => {
-    let interval = null;
-    if (isActive) {
-      interval = setInterval(() => {
-        setSeconds((prev) => prev + 1);
-        localStorage.setItem("timer_lastTimestamp", Date.now().toString());
-      }, 1000);
-    }
-    localStorage.setItem("timer_seconds", seconds);
-    localStorage.setItem("timer_isActive", isActive);
-    return () => clearInterval(interval);
-  }, [isActive, seconds]);
 
   /* ============================
         HANDLERS
@@ -142,12 +161,11 @@ const Dashboard = ({ theme, onSetTheme, themeOptions, onLogout }) => {
         `https://backend-6hhv.onrender.com/api/users/${myId}/checkin`,
       );
       const newStreak = streakCount + 1;
+      const updatedUser = { ...userData, streakCount: newStreak };
 
       setHasCheckedInToday(true);
       setStreakCount(newStreak);
       localStorage.setItem(`lastCheckIn_${myId}`, new Date().toDateString());
-
-      const updatedUser = { ...userData, streakCount: newStreak };
       localStorage.setItem("user", JSON.stringify(updatedUser));
       setUserData(updatedUser);
     } catch (error) {
@@ -156,37 +174,10 @@ const Dashboard = ({ theme, onSetTheme, themeOptions, onLogout }) => {
   };
 
   const handleSessionSaved = (duration) => {
+    // Session save hone pe todayDeepSeconds mein add karo
     setTodayDeepSeconds((prev) => prev + duration);
-    setSeconds(0);
-    setIsActive(false);
-    localStorage.removeItem("timer_seconds");
-    localStorage.removeItem("timer_isActive");
-    localStorage.removeItem("timer_lastTimestamp");
-  };
-
-  const handleAcceptBattle = () => {
-    socket.emit("respond_to_challenge", {
-      fromUserId: incomingChallenge.senderId,
-      status: "accepted",
-      targetName: userData.name,
-    });
-    setIncomingChallenge(null);
-    fetchActiveBattle();
-    navigate("/dashboard/battle-arena", {
-      state: {
-        opponent: incomingChallenge.senderName,
-        field: incomingChallenge.battleType,
-      },
-    });
-  };
-
-  const handleRejectBattle = () => {
-    socket.emit("respond_to_challenge", {
-      fromUserId: incomingChallenge.senderId,
-      status: "rejected",
-      targetName: userData.name,
-    });
-    setIncomingChallenge(null);
+    // seconds aur isActive reset StudyTimer khud karega
+    // Dashboard ko alag se reset karne ki zarurat nahi
   };
 
   const formatHours = (sec) => `${(sec / 3600).toFixed(1)}h`;
@@ -195,8 +186,6 @@ const Dashboard = ({ theme, onSetTheme, themeOptions, onLogout }) => {
         UI (LAYOUT SHELL)
   ============================ */
   return (
-    // bg-slate-100 ko bg-slate-50 kiya gaya hai for a cleaner, modern look.
-    // selection colors add kiye hain taaki text select karne par minimal feel aaye.
     <div className="flex h-[100dvh] w-full bg-slate-50 overflow-hidden relative selection:bg-indigo-100 selection:text-indigo-900 font-sans">
       {/* SIDEBAR */}
       <Sidebar setZenMode={setZenMode} onLogout={onLogout} />
@@ -221,7 +210,7 @@ const Dashboard = ({ theme, onSetTheme, themeOptions, onLogout }) => {
           onCheckIn={handleDailyCheckIn}
         />
 
-        {/* PAGE CONTENT AREA - Adjusted paddings for minimal components */}
+        {/* PAGE CONTENT */}
         <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-6 lg:p-8 pb-24 md:pb-8 scroll-smooth no-scrollbar">
           {location.pathname === "/dashboard" && (
             <div className="mb-5 sm:mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -299,6 +288,32 @@ const Dashboard = ({ theme, onSetTheme, themeOptions, onLogout }) => {
       />
     </div>
   );
+
+  // ── Battle Handlers (inside return scope fix) ─────────────
+  function handleAcceptBattle() {
+    socket.emit("respond_to_challenge", {
+      fromUserId: incomingChallenge.senderId,
+      status: "accepted",
+      targetName: userData.name,
+    });
+    setIncomingChallenge(null);
+    fetchActiveBattle();
+    navigate("/dashboard/battle-arena", {
+      state: {
+        opponent: incomingChallenge.senderName,
+        field: incomingChallenge.battleType,
+      },
+    });
+  }
+
+  function handleRejectBattle() {
+    socket.emit("respond_to_challenge", {
+      fromUserId: incomingChallenge.senderId,
+      status: "rejected",
+      targetName: userData.name,
+    });
+    setIncomingChallenge(null);
+  }
 };
 
 export default Dashboard;

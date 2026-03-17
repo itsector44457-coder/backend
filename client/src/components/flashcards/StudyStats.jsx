@@ -102,7 +102,14 @@ function StudyHeatmap({ studyData = [] }) {
     : 0;
   const avgOnActive =
     activeDays > 0 ? (totalHours / activeDays).toFixed(1) : "0";
-  const todayStr = new Date().toISOString().split("T")[0];
+
+  // ✅ FIX: Timezone aware "Today" calculation
+  const localToday = new Date();
+  localToday.setMinutes(
+    localToday.getMinutes() - localToday.getTimezoneOffset(),
+  );
+  const todayStr = localToday.toISOString().split("T")[0];
+
   const CELL = 13;
   const GAP = 2;
 
@@ -245,7 +252,7 @@ function StudyHeatmap({ studyData = [] }) {
               {tooltip.hours === 0 ? (
                 <span className="text-slate-400">No activity</span>
               ) : (
-                <span>{tooltip.hours}h studied</span>
+                <span>{tooltip.hours} unit(s) studied</span>
               )}
             </div>
           )}
@@ -361,11 +368,22 @@ export default function StudyStats() {
 
   const { heatmap, deckStats, totalReviewed, overallRetention, streak } = stats;
 
-  // Convert reviewed cards → study hours for heatmap
-  const heatmapStudyData = heatmap.map((s) => ({
-    date: s.date,
-    studyHours: Math.min(8, Math.round((s.reviewed || 0) / 8)),
-  }));
+  // ✅ FIX: Enhanced Logic for converting reviewed cards → study matrix units
+  const heatmapStudyData = heatmap.map((s) => {
+    // Force date format to just YYYY-MM-DD
+    const safeDate = s.date.includes("T") ? s.date.split("T")[0] : s.date;
+
+    // Calculate hours, but force minimum 1 if they studied anything
+    let calculatedHours = Math.round((s.reviewed || 0) / 8);
+    if (s.reviewed > 0 && calculatedHours === 0) {
+      calculatedHours = 1;
+    }
+
+    return {
+      date: safeDate,
+      studyHours: Math.min(8, calculatedHours),
+    };
+  });
 
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto w-full h-full overflow-y-auto no-scrollbar pb-20">

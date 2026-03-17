@@ -1,6 +1,11 @@
+const mongoose = require("mongoose");
 const Flashcard = require("../models/Flashcard");
-const StudySession = require("../models/StudySession");
+const StudySession = require("../models/StudySession"); // Yeh Flashcard wali padhai hai
 const Deck = require("../models/Deck");
+
+// 🚨 IMPORTANT: Yahan apne Timer/Focus wale model ko zaroor import karna
+// (Agar file ka naam alag hai toh string change kar lena)
+const FocusSession = require("../models/Session"); // <-- YAHAN DHYAN DENA
 
 // 🛠️ FIX: India (Local) Timezone ke hisaab se YYYY-MM-DD nikalna
 const getLocalYYYYMMDD = () => {
@@ -14,12 +19,66 @@ const getStats = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    // 1. Heatmap — last 365 days ki activity
-    const sessions = await StudySession.find({ userId })
-      .sort("date")
-      .select("date reviewed correct -_id");
+    // =========================================================
+    // 1. HEATMAP MERGE LOGIC (Timer + Flashcards)
+    // =========================================================
 
-    // 2. Retention per deck & Weakest Cards
+    // A) Flashcards ka data nikalo
+    const cardSessions = await StudySession.find({ userId }).select(
+      "date reviewed correct -_id",
+    );
+
+    // B) Timer ka data nikalo (Aggregating total seconds per day)
+    let timerSessions = [];
+    try {
+      timerSessions = await FocusSession.aggregate([
+        { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+        { $group: { _id: "$date", totalStudySeconds: { $sum: "$duration" } } },
+      ]);
+    } catch (e) {
+      console.log(
+        "Timer data fetch karne me error ya model nahi mila:",
+        e.message,
+      );
+    }
+
+    // C) Dono ko Merge (Jod) karo
+    const heatmapMap = {};
+
+    // Pehle flashcards ka data map me daalo
+    cardSessions.forEach((session) => {
+      heatmapMap[session.date] = {
+        date: session.date,
+        reviewed: session.reviewed || 0,
+        correct: session.correct || 0,
+        totalStudySeconds: 0, // Default zero
+      };
+    });
+
+    // Ab Timer ka data usme add/merge karo
+    timerSessions.forEach((session) => {
+      const dateStr = session._id;
+      if (!heatmapMap[dateStr]) {
+        // Agar us din card nahi padha, sirf timer chalaya, toh naya entry banao
+        heatmapMap[dateStr] = {
+          date: dateStr,
+          reviewed: 0,
+          correct: 0,
+          totalStudySeconds: 0,
+        };
+      }
+      // Seconds add kar do
+      heatmapMap[dateStr].totalStudySeconds = session.totalStudySeconds || 0;
+    });
+
+    // Object ko wapas Array banakar Date ke hisaab se sort kar lo
+    const finalHeatmap = Object.values(heatmapMap).sort(
+      (a, b) => new Date(a.date) - new Date(b.date),
+    );
+
+    // =========================================================
+    // 2. Retention per deck & Weakest Cards (TUMHARA PURANA LOGIC)
+    // =========================================================
     const decks = await Deck.find({ userId });
 
     const deckStats = await Promise.all(
@@ -33,7 +92,7 @@ const getStats = async (req, res) => {
         const weak = cards.filter((c) => c.easeFactor < 1.8).length;
         const retention = Math.round((mastered / total) * 100);
 
-        // Weakest 3 cards (Jinko padhne mein dikkat aa rahi hai)
+        // Weakest 3 cards
         const weakCards = cards
           .sort((a, b) => a.easeFactor - b.easeFactor)
           .slice(0, 3)
@@ -57,15 +116,25 @@ const getStats = async (req, res) => {
       }),
     );
 
+    // =========================================================
     // 3. Overall numbers
-    const totalReviewed = sessions.reduce((s, x) => s + x.reviewed, 0);
-    const totalCorrect = sessions.reduce((s, x) => s + x.correct, 0);
+    // =========================================================
+    const totalReviewed = cardSessions.reduce(
+      (s, x) => s + (x.reviewed || 0),
+      0,
+    );
+    const totalCorrect = cardSessions.reduce((s, x) => s + (x.correct || 0), 0);
     const overallRetention = totalReviewed
       ? Math.round((totalCorrect / totalReviewed) * 100)
       : 0;
 
-    // 4. Current Streak (Fixed: Agar aaj nahi padha par kal padha tha, toh streak 0 nahi honi chahiye)
-    const dates = [...new Set(sessions.map((s) => s.date))].sort().reverse();
+    // =========================================================
+    // 4. Current Streak (MERGED DATA KE HISAAB SE)
+    // =========================================================
+    // Yahan finalHeatmap use kiya hai taaki sirf Timer use karne par bhi streak na toote
+    const dates = [...new Set(finalHeatmap.map((s) => s.date))]
+      .sort()
+      .reverse();
     let streak = 0;
 
     const todayStr = getLocalYYYYMMDD();
@@ -96,8 +165,11 @@ const getStats = async (req, res) => {
       }
     }
 
+    // =========================================================
+    // 5. SEND DATA TO FRONTEND
+    // =========================================================
     res.json({
-      heatmap: sessions,
+      heatmap: finalHeatmap, // <-- Ab isme cards + timer dono ka data ja raha hai!
       deckStats: deckStats.filter(Boolean),
       totalReviewed,
       overallRetention,

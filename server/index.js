@@ -24,7 +24,6 @@ const roadmapRoutes = require("./routes/roadmapRoutes");
 const CustomExam = require("./models/CustomExam");
 const FieldTemplate = require("./models/FieldTemplate");
 const flashcardRoutes = require("./routes/flashcardRoutes");
-const statsRoutes = require("./routes/statsRoutes");
 
 const app = express();
 const server = http.createServer(app); // 🛠️ Express app ko HTTP server mein wrap kiya
@@ -131,7 +130,7 @@ app.use("/api/categories", fieldRoutes);
 app.use("/api/fields", fieldRoutes);
 app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api/flashcards", flashcardRoutes);
-app.use("/api/stats", statsRoutes);
+app.use("/api/stats", require("./routes/statsRoutes"));
 
 // --- 5. BASE ROUTE ---
 app.get("/", (req, res) => {
